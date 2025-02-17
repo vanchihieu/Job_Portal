@@ -13,13 +13,13 @@ export class AppController {
     private authService: AuthService,
   ) {}
 
-  @UseGuards(LocalAuthGuard) //middleware người dùng phải gửi đúng username và password
+  @UseGuards(LocalAuthGuard) //người dùng người dùng phải gửi đúng username và password
   @Post('/login')
   handleLogin(@Request() req) {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard) // // phải gửi kèm theo accesstoken
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
