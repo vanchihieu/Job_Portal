@@ -68,7 +68,7 @@ export class UsersService {
 
   remove(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
-    return this.userModel.deleteOne({
+    return this.userModel.softDelete({
       _id: id,
     });
   }

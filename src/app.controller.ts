@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from 'src/decorator/customize';
 
 @Controller()
 export class AppController {
@@ -13,6 +14,7 @@ export class AppController {
     private authService: AuthService,
   ) {}
 
+  @Public() // không cần phải gửi accesstoken
   @UseGuards(LocalAuthGuard) //người dùng người dùng phải gửi đúng username và password
   @Post('/login')
   handleLogin(@Request() req) {
