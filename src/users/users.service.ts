@@ -26,8 +26,14 @@ export class UsersService {
     return compareSync(password, hash);
   }
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    const hashPassword = this.getHashPassword(createUserDto.password);
+    let user = await this.userModel.create({
+      email: createUserDto.email,
+      password: hashPassword,
+      name: createUserDto.name,
+    });
+    return user;
   }
 
   findAll() {
@@ -41,8 +47,8 @@ export class UsersService {
       .findOne({
         _id: id,
       })
-      .select('-password')
-      .populate({ path: 'role', select: { name: 1, _id: 1 } });
+      .select('-password');
+    // .populate({ path: 'role', select: { name: 1, _id: 1 } });
   }
 
   findOneByUserName(username: string) {
@@ -51,23 +57,19 @@ export class UsersService {
     });
   }
 
-  async update(updateUserDto: UpdateUserDto, user: IUser) {
-    const updated = await this.userModel.updateOne(
+  async update(updateUserDto: UpdateUserDto) {
+    return await this.userModel.updateOne(
       {
         _id: updateUserDto._id,
       },
-      {
-        ...updateUserDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
-      },
+      { ...updateUserDto },
     );
-    return updated;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
+    return this.userModel.deleteOne({
+      _id: id,
+    });
   }
 }

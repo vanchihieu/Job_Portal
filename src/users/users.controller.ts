@@ -17,13 +17,12 @@ import { IUser } from 'src/users/users.interface';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto, @User() user: IUser) {
-    let newUser = await this.usersService.create(createUserDto, user);
-    return {
-      _id: newUser?._id,
-      createdAt: newUser?.createdAt,
-    };
+  @Post() // => ""
+  create(
+    @Body()
+    createUserDto: CreateUserDto,
+  ) {
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
@@ -37,13 +36,15 @@ export class UsersController {
   }
 
   @Patch()
-  async update(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
-    let updatedUser = await this.usersService.update(updateUserDto, user);
-    return updatedUser;
+  update(
+    @Body()
+    updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @User() user: IUser) {
-    return this.usersService.remove(id, user);
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }
