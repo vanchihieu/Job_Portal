@@ -26,6 +26,14 @@ async function bootstrap() {
     }),
   );
 
+  // config cors
+  app.enableCors({
+    origin: '*', // cho phep bat ki noi nao co the goi den
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
+
   await app.listen(configService.get<string>('PORT'));
 }
 bootstrap();
