@@ -26,7 +26,7 @@ export class Company {
     email: string;
   };
 
-  @Prop()
+  @Prop({ type: Object })
   deletedBy: {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;
@@ -37,7 +37,7 @@ export class Company {
 
   @Prop()
   updateAt: string;
-  
+
   @Prop()
   isDeleted: boolean;
 
