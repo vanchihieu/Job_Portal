@@ -1,10 +1,7 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
-import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { AuthService } from 'src/auth/auth.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Public } from 'src/decorator/customize';
 
 @Controller()
 export class AppController {
@@ -13,17 +10,4 @@ export class AppController {
     private configService: ConfigService,
     private authService: AuthService,
   ) {}
-
-  @Public() // không cần phải gửi accesstoken
-  @UseGuards(LocalAuthGuard) //người dùng người dùng phải gửi đúng username và password
-  @Post('/login')
-  handleLogin(@Request() req) {
-    return this.authService.login(req.user);
-  }
-
-  // @UseGuards(JwtAuthGuard) // // phải gửi kèm theo accesstoken
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
 }
