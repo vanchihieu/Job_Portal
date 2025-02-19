@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { TransformInterceptor } from 'src/core/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -25,6 +26,9 @@ async function bootstrap() {
       whitelist: true, //khi update sẽ kh bị mất dữ liệu
     }),
   );
+
+  // global interceptor
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // config cors
   app.enableCors({
