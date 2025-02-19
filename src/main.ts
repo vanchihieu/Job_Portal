@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TransformInterceptor } from 'src/core/transform.interceptor';
 
@@ -36,6 +36,13 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
+  });
+
+  //config versioning
+  app.setGlobalPrefix('api');
+  app.enableVersioning({
+    defaultVersion: ['1', '2'], //v1 v2
+    type: VersioningType.URI,
   });
 
   await app.listen(configService.get<string>('PORT'));

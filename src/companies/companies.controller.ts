@@ -23,6 +23,7 @@ export class CompaniesController {
     return this.companiesService.create(createCompanyDto, user); //rồi truyền sang phần service
   }
 
+  // http://localhost:8081/api/v1/companies?page=1&limit=10
   @Get()
   @ResponseMessage('Fetch list Company with paginate')
   findAll(
