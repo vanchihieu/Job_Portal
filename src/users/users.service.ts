@@ -7,6 +7,7 @@ import { User as UserM, UserDocument } from 'src/users/schemas/user.schema';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import mongoose from 'mongoose';
 import { IUser } from 'src/users/users.interface';
+import { User } from 'src/decorator/customize';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +35,7 @@ export class UsersService {
     }
 
     const hashPassword = this.getHashPassword(password);
-    
+
     let newRegister = await this.userModel.create({
       name,
       email,
@@ -52,14 +53,35 @@ export class UsersService {
     return compareSync(password, hash);
   }
 
-  async create(createUserDto: CreateUserDto) {
-    const hashPassword = this.getHashPassword(createUserDto.password);
-    let user = await this.userModel.create({
-      email: createUserDto.email,
+  async create(createUserDto: CreateUserDto, @User() user: IUser) {
+    const { name, email, password, age, gender, address, role, company } =
+      createUserDto;
+
+    //add login check email
+    const isExist = await this.userModel.findOne({ email });
+    if (isExist) {
+      throw new BadRequestException(
+        `Email: ${email} đã tồn tại. Vui lòng sử dụng email khác!`,
+      );
+    }
+
+    const hashPassword = this.getHashPassword(password);
+
+    let newUser = await this.userModel.create({
+      name,
+      email,
       password: hashPassword,
-      name: createUserDto.name,
+      age,
+      gender,
+      address,
+      role,
+      company,
+      createdBy: {
+        _id: user?._id,
+        createdAt: user?.createdAt,
+      },
     });
-    return user;
+    return newUser;
   }
 
   findAll() {
