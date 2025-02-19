@@ -16,6 +16,9 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
+  // global interceptor
+  app.useGlobalInterceptors(new TransformInterceptor(reflector));
+
   app.useStaticAssets(join(__dirname, '..', 'public')); //js, css, images
   app.setBaseViewsDir(join(__dirname, '..', 'views')); //views
   app.setViewEngine('ejs');
@@ -26,9 +29,6 @@ async function bootstrap() {
       whitelist: true, //khi update sẽ kh bị mất dữ liệu
     }),
   );
-
-  // global interceptor
-  app.useGlobalInterceptors(new TransformInterceptor());
 
   // config cors
   app.enableCors({

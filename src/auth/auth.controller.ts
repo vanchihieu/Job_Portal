@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from 'src/decorator/customize';
+import { Public, ResponseMessage } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth') // route
@@ -16,6 +16,7 @@ export class AuthController {
 
   @Public() //Không muốn check JWT thì dùng Public
   @UseGuards(LocalAuthGuard) // người dùng phải gửi đúng username và password
+  @ResponseMessage('Login success')
   @Post('/login')
   handleLogin(@Request() req) {
     return this.authService.login(req.user);
