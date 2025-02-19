@@ -8,6 +8,7 @@ import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import mongoose from 'mongoose';
 import { IUser } from 'src/users/users.interface';
 import { User } from 'src/decorator/customize';
+import aqp from 'api-query-params';
 
 @Injectable()
 export class UsersService {
@@ -84,8 +85,35 @@ export class UsersService {
     return newUser;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(currentPage: number, limit: number, qs: string) {
+    const { filter, sort, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    let offset = (+currentPage - 1) * +limit;
+    let defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = (await this.userModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.userModel
+      .find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .select('-password')
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage, // trang hiện tại
+        pageSize: limit, // số lượng bản ghi đã lấy
+        pages: totalPages, // tổng số trang với điều kiện query
+        total: totalItems, // tổng số phần tử (số bản ghi)
+      },
+      result, // kết quả query
+    };
   }
 
   //Tìm user theo id
@@ -100,22 +128,49 @@ export class UsersService {
   }
 
   findOneByUserName(username: string) {
-    return this.userModel.findOne({
-      email: username,
-    });
+    return this.userModel
+      .findOne({
+        email: username,
+      })
+      .populate({ path: 'role', select: { name: 1 } });
   }
 
-  async update(updateUserDto: UpdateUserDto) {
-    return await this.userModel.updateOne(
+  async update(updateUserDto: UpdateUserDto, user: IUser) {
+    const updated = await this.userModel.updateOne(
       {
         _id: updateUserDto._id,
       },
-      { ...updateUserDto },
+      {
+        ...updateUserDto,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
     );
+    return updated;
   }
 
-  remove(id: string) {
+  async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
+
+    const foundUser = await this.userModel.findById(id);
+    if (foundUser && foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException('Không thể xóa tài khoản admin@gmail.com');
+    }
+
+    await this.userModel.updateOne(
+      {
+        _id: id,
+      },
+      {
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+
     return this.userModel.softDelete({
       _id: id,
     });
