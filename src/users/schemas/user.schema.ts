@@ -14,8 +14,8 @@ export class User {
   @Prop()
   name: string;
 
-  // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
-  // role: mongoose.Schema.Types.ObjectId;
+  @Prop()
+  role: string;
 
   @Prop()
   refreshToken: string;
