@@ -29,6 +29,7 @@ export class TransformInterceptor<T>
       .handle()
       .pipe(
         map((data) => ({
+          author: 'Van Chi Hieu',
           statusCode: context.switchToHttp().getResponse().statusCode,
           message:
             this.reflector.get<string>(
