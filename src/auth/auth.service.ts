@@ -109,7 +109,7 @@ export class AuthService {
           role,
         };
         const refresh_token = this.createRefreshToken(payload);
-        
+
         //update user with refresh token vao database
         await this.usersService.updateUserToken(refresh_token, _id.toString());
 
@@ -138,5 +138,11 @@ export class AuthService {
         `Refresh token không hợp lệ. Vui lòng login.`,
       );
     }
+  };
+
+  logout = async (response: Response, user: IUser) => {
+    await this.usersService.updateUserToken('', user._id);
+    response.clearCookie('refresh_token');
+    return 'ok';
   };
 }
