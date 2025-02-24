@@ -45,8 +45,9 @@ export class ResumesService {
     };
   }
 
+  // query: http://localhost:3000/resumes?current=1&pageSize=10&status=PENDING&page=1&limit=10&sort=createdAt&populate=companyId,jobId&fields=companyId.name,companyId.email,jobId.title,jobId.description
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, sort, population } = aqp(qs);
+    const { filter, sort, population, projection } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
 
@@ -62,6 +63,7 @@ export class ResumesService {
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
+      .select(projection as any)
       .exec();
 
     return {
