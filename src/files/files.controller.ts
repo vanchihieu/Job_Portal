@@ -24,7 +24,7 @@ export class FilesController {
   @Public()
   @Post('upload')
   @ResponseMessage('Upload single file')
-  @UseInterceptors(FileInterceptor('file')) // key "file"
+  @UseInterceptors(FileInterceptor('fileUpload')) // key of file upload: fileUpload
   uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder() //validate upload file

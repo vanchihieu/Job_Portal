@@ -24,6 +24,9 @@ export class CreateJobDto {
   @IsNotEmpty({ message: 'Name không được để trống' })
   name: string;
 
+  @IsNotEmpty()
+  logo: string;
+  
   @IsNotEmpty({ message: 'skills không được để trống' })
   @IsArray({ message: 'skills có định dạng là array' })
   @IsString({ each: true, message: 'skills định dạng là string' })

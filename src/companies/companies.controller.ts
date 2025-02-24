@@ -12,7 +12,7 @@ import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { IUser } from 'src/users/users.interface';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 
 @Controller('companies')
 export class CompaniesController {
@@ -25,6 +25,7 @@ export class CompaniesController {
 
   // http://localhost:8081/api/v1/companies?page=1&limit=10
   @Get()
+  @Public()
   @ResponseMessage('Fetch list Company with paginate')
   findAll(
     @Query('current') currentPage: string,
@@ -35,6 +36,7 @@ export class CompaniesController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(+id);
   }
