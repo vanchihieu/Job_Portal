@@ -6,6 +6,7 @@ import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
 import ms from 'ms';
 import { Response } from 'express';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private rolesService: RolesService,
   ) {}
 
   //username/ pass là 2 tham số thư viện passport nó ném về
@@ -21,14 +23,22 @@ export class AuthService {
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
-        return user;
+        const userRole = user.role as unknown as { _id: string; name: string };
+        const temp = await this.rolesService.findOne(userRole._id);
+
+        const objUser = {
+          ...user.toObject(),
+          permissions: temp?.permissions ?? [],
+        };
+
+        return objUser;
       }
     }
     return null;
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role } = user;
+    const { _id, name, email, role, permissions } = user;
     const payload = {
       sub: 'token login', //Nội dung token
       iss: 'from server', //Người tạo ra token
@@ -36,6 +46,7 @@ export class AuthService {
       name,
       email,
       role,
+      permissions,
     };
 
     const refresh_token = this.createRefreshToken(payload);
@@ -113,6 +124,10 @@ export class AuthService {
         //update user with refresh token vao database
         await this.usersService.updateUserToken(refresh_token, _id.toString());
 
+        // fetch user's role
+        const userRole = user.role as unknown as { _id: string; name: string };
+        const temp = await this.rolesService.findOne(userRole._id);
+
         //set refresh_token as cookie
         response.clearCookie('refresh_token');
         response.cookie('refresh_token', refresh_token, {
@@ -126,6 +141,7 @@ export class AuthService {
             name,
             email,
             role,
+            permissions: temp?.permissions ?? [],
           },
         };
       } else {

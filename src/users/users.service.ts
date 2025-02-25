@@ -9,12 +9,17 @@ import mongoose from 'mongoose';
 import { IUser } from 'src/users/users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
+import { USER_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserM.name)
     private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name)
+    private roleModel: SoftDeleteModel<RoleDocument>,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -66,6 +71,8 @@ export class UsersService {
       );
     }
 
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+
     const hashPassword = this.getHashPassword(password);
 
     let newUser = await this.userModel.create({
@@ -75,7 +82,7 @@ export class UsersService {
       age,
       gender,
       address,
-      role,
+      role: userRole?._id,
       company,
       createdBy: {
         _id: user?._id,
@@ -132,7 +139,7 @@ export class UsersService {
       .findOne({
         email: username,
       })
-      .populate({ path: 'role', select: { name: 1, permission: 1 } });
+      .populate({ path: 'role', select: { name: 1 } });
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
@@ -188,6 +195,8 @@ export class UsersService {
   };
 
   findUserByToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken });
+    return await this.userModel
+      .findOne({ refreshToken })
+      .populate({ path: 'role', select: { name: 1 } });
   };
 }
