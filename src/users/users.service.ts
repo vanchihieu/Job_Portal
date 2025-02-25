@@ -123,8 +123,8 @@ export class UsersService {
       .findOne({
         _id: id,
       })
-      .select('-password');
-    // .populate({ path: 'role', select: { name: 1, _id: 1 } });
+      .select('-password')
+      .populate({ path: 'role', select: { name: 1, _id: 1 } });
   }
 
   findOneByUserName(username: string) {
@@ -132,7 +132,7 @@ export class UsersService {
       .findOne({
         email: username,
       })
-      .populate({ path: 'role', select: { name: 1 } });
+      .populate({ path: 'role', select: { name: 1, permission: 1 } });
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
